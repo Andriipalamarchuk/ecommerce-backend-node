@@ -1,0 +1,72 @@
+services:
+  ecommerce-backend-node:
+    image: ecommerce-backend-node:latest
+    build:
+      dockerfile: Dockerfile
+      context: .
+    develop:
+      watch:
+        - action: rebuild
+          path: package.json
+          ignore:
+            - node_modules/
+    env_file:
+      - .env
+    environment:
+      - DATABASE_HOST=postgres
+      - DATABASE_PORT=5432 # Specifying this port, because externally DB container will be available at DATABASE_PORT variable, but internally on 5432
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379 # Specifying this port, because externally Redis container will be available at REDIS_PORT variable, but internally on 6379
+    ports:
+      - ${API_PORT}:3000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    links:
+      - postgres
+      - redis
+    volumes:
+      - ./src:/app/src
+    restart: on-failure
+
+  postgres:
+    image: postgres:17.0-alpine3.20
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER=${DATABASE_USERNAME}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - POSTGRES_DB=${DATABASE_NAME}
+    volumes:
+      - postgres:/var/lib/postgresql/data
+
+    ports:
+      - ${DATABASE_PORT}:5432
+    healthcheck:
+      # This command is needed to check that Postgres server is started completely(not only container) and ready to accept connections
+      test: [ "CMD-SHELL", "pg_isready -d postgres" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  redis:
+    image: redis:7.4.1-alpine3.20
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - ${REDIS_PORT}:6379
+    command: >
+      --requirepass ${REDIS_PASSWORD}
+    healthcheck:
+      # This command is needed to check that Redis server is started completely(not only container) and ready to accept connections
+      test: [ 'CMD', 'redis-cli', '--raw', 'incr', 'ping' ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+volumes:
+  postgres:
