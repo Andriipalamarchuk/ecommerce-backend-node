@@ -1,0 +1,5 @@
+export enum HashKey {
+  PATTERN_CLEAN_ALL = '*',
+  STORED_POKEMONS = 'STORED_POKEMONS',
+  TEAMS = 'TEAMS',
+}

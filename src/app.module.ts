@@ -1,10 +1,29 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { validationSchema } from './config/config-validation.schema';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { RedisModule } from './modules/cache/redis/redis.module';
+import { HashKey } from './enums';
+import { DatabaseModule } from './modules/database/database.module';
 
 @Module({
-  imports: [],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      validationSchema,
+    }),
+    RedisModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService) => {
+        return {
+          host: configService.get('REDIS_HOST'),
+          port: parseInt(configService.get('REDIS_PORT'), 10),
+          password: configService.get('REDIS_PASSWORD'),
+          patternToClean: HashKey.PATTERN_CLEAN_ALL,
+        };
+      },
+    }),
+    DatabaseModule,
+  ],
 })
 export class AppModule {}
