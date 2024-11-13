@@ -4,6 +4,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { RedisModule } from './modules/cache/redis/redis.module';
 import { HashKey } from './enums';
 import { DatabaseModule } from './modules/database/database.module';
+import { UsersModule } from './modules/users/users.module';
 
 @Module({
   imports: [
@@ -23,7 +24,9 @@ import { DatabaseModule } from './modules/database/database.module';
         };
       },
     }),
+    AppModule,
     DatabaseModule,
+    UsersModule,
   ],
 })
 export class AppModule {}
