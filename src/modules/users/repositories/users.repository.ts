@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '../entities/user.entity';
-import { FindOptionsWhere, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { IUser } from '../interfaces/user.interface';
 import { RegistrationCredentialsDto } from '../../auth/dtos/auth.dto';
 import { ICredentials } from '../../auth/interfaces/auth.interface';
@@ -23,10 +23,8 @@ export class UsersRepository {
     return restOfEntity;
   }
 
-  public async findOne(
-    where: FindOptionsWhere<UserEntity>,
-  ): Promise<IUser | null> {
-    const findResult = await this._repository.findOne({ where });
+  public async findOneByEmail(email: string): Promise<IUser | null> {
+    const findResult = await this._repository.findOne({ where: { email } });
     return UsersRepository.userEntityToUser(findResult);
   }
 
@@ -53,5 +51,10 @@ export class UsersRepository {
 
   public async getNumberOfUsers(): Promise<number> {
     return await this._repository.count();
+  }
+
+  public async findOneById(id: number): Promise<IUser> {
+    const findResult = await this._repository.findOne({ where: { id } });
+    return UsersRepository.userEntityToUser(findResult);
   }
 }

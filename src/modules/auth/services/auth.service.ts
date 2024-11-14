@@ -22,9 +22,7 @@ export class AuthService {
     registrationCredentials: RegistrationCredentialsDto,
   ): Promise<IUser> {
     try {
-      await this._usersService.findOne({
-        email: registrationCredentials.email,
-      });
+      await this._usersService.findOneByEmail(registrationCredentials.email);
     } catch (e) {
       const numberOfUsers = await this._usersService.getNumberOfUsers();
       const hashedPassword = await this._encryptionService.getHash(

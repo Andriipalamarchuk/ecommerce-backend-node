@@ -12,6 +12,6 @@ export class ProductEntity extends PlatformBaseEntity implements IProduct {
   price: number;
 
   @Column({ name: 'available_quantity', type: 'int' })
-  @Check('availableQuantity >= 0')
+  @Check('available_quantity >= 0')
   availableQuantity: number;
 }

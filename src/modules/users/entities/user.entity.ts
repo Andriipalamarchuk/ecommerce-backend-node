@@ -1,7 +1,6 @@
 import { Column, Entity } from 'typeorm';
 import { PlatformBaseEntity } from '../../../entities/platform-base.entity';
 import { IUser } from '../interfaces/user.interface';
-import { EncryptionService } from '../../encryption/services/encryption.service';
 
 @Entity({ name: 'User' })
 export class UserEntity extends PlatformBaseEntity implements IUser {
@@ -16,8 +15,4 @@ export class UserEntity extends PlatformBaseEntity implements IUser {
   surname: string;
   @Column({ name: 'is_admin', type: 'boolean', default: false })
   isAdmin: boolean;
-
-  constructor(private readonly _encryptionService: EncryptionService) {
-    super();
-  }
 }

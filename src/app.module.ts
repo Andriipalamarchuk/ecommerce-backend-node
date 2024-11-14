@@ -2,9 +2,12 @@ import { Module } from '@nestjs/common';
 import { validationSchema } from './config/config-validation.schema';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { RedisModule } from './modules/cache/redis/redis.module';
-import { HashKey } from './enums';
 import { DatabaseModule } from './modules/database/database.module';
 import { UsersModule } from './modules/users/users.module';
+import { CartsModule } from './modules/carts/carts.module';
+import { ProductsModule } from './modules/products/products.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { HashKey } from './enums/hash-key.enum';
 
 @Module({
   imports: [
@@ -27,6 +30,9 @@ import { UsersModule } from './modules/users/users.module';
     AppModule,
     DatabaseModule,
     UsersModule,
+    AuthModule,
+    CartsModule,
+    ProductsModule,
   ],
 })
 export class AppModule {}

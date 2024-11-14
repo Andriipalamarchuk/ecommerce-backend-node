@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { LogLevel, ValidationPipe } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
@@ -14,6 +14,9 @@ async function bootstrap() {
       transform: true,
       transformOptions: { enableImplicitConversion: true },
     }),
+  );
+  app.useLogger(
+    (process.env.LOG_LEVELS.split(',') || ['error', 'warn']) as LogLevel[],
   );
   const port = process.env['API_PORT'] ?? 3000;
   await app.listen(port, '0.0.0.0');
