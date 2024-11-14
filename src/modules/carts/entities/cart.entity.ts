@@ -1,17 +1,21 @@
 import {
-  Check,
   Column,
   Entity,
   JoinColumn,
   ManyToOne,
-  PrimaryColumn,
+  OneToMany,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { UserEntity } from '../../users/entities/user.entity';
-import { ProductEntity } from '../../products/entities/product.entity';
+import { ProductCartEntity } from './product-cart.entity';
+import { DiscountEntity } from '../../discounts/entities/discount.entity';
 
 @Entity({ name: 'Cart' })
 export class CartEntity {
-  @PrimaryColumn({ name: 'user_id', type: 'int' })
+  @PrimaryGeneratedColumn({ name: 'id', type: 'int' })
+  id: number;
+
+  @Column({ name: 'user_id', type: 'int' })
   userId: number;
 
   //User is optional because can not be joined always
@@ -19,15 +23,16 @@ export class CartEntity {
   @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
   user?: UserEntity;
 
-  @PrimaryColumn({ name: 'product_id', type: 'int' })
-  productId: number;
+  @OneToMany(() => ProductCartEntity, (product) => product.cart)
+  productCart: ProductCartEntity[];
 
-  //User is optional because can not be joined always
-  @ManyToOne(() => ProductEntity, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
-  @JoinColumn({ name: 'product_id', referencedColumnName: 'id' })
-  product?: ProductEntity;
+  @Column({ name: 'discount_id', type: 'int', nullable: true })
+  discountId: number | null;
 
-  @Column({ name: 'quantity', type: 'int', default: 1 })
-  @Check('quantity > 0')
-  quantity: number;
+  @ManyToOne(() => DiscountEntity, {
+    onDelete: 'SET NULL',
+    onUpdate: 'CASCADE',
+  })
+  @JoinColumn({ name: 'discount_id', referencedColumnName: 'id' })
+  discount?: DiscountEntity;
 }

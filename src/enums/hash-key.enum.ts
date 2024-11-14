@@ -7,4 +7,6 @@ export enum HashKey {
   USER_ID = 'user_id',
   NUMBER_OF_USERS = 'number_of_users',
   USER_CREDENTIALS = 'user_credentials',
+  DISCOUNTS = 'discounts',
+  DISCOUNT = 'discount',
 }
