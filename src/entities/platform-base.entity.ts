@@ -1,13 +1,11 @@
 import {
   CreateDateColumn,
   DeleteDateColumn,
-  Entity,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { IPlatformBase } from '../interfaces/platform-base.interface';
 
-@Entity()
 export abstract class PlatformBaseEntity implements IPlatformBase {
   @PrimaryGeneratedColumn({ name: 'id', type: 'int' })
   id: number;
