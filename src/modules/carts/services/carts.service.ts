@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  ForbiddenException,
   Injectable,
   Logger,
   NotFoundException,
@@ -7,18 +8,21 @@ import {
 import { CartsRepository } from '../repositories/carts.repository';
 import { ICart } from '../interfaces/cart.interface';
 import { ProductsService } from '../../products/services/products.service';
-import { IProductCart } from '../../products/interfaces/product.interface';
-import { Decimal } from 'decimal.js';
 import { ProductToCartDto } from '../dtos/product-to-cart.dto';
 import { Cacheable, CacheClear } from '@type-cacheable/core';
 import { TimeInSecond } from '../../../enums/time-in-seconds.enum';
 import { HashKey } from '../../../enums/hash-key.enum';
+import { IProductCart } from '../../products/interfaces/product.interface';
+import { ApplyDiscountDto } from '../dtos/apply-discount.dto';
+import { DiscountsService } from '../../discounts/services/discounts.service';
+import { IDiscount } from '../../discounts/interfaces/discount.interface';
 
 @Injectable()
 export class CartsService {
   constructor(
     private readonly _cartsRepository: CartsRepository,
     private readonly _productsService: ProductsService,
+    private readonly _discountsService: DiscountsService,
   ) {}
 
   @CacheClear({
@@ -29,6 +33,10 @@ export class CartsService {
     productToCartDto: ProductToCartDto,
     userId: number,
   ): Promise<IProductCart> {
+    let cart = await this._cartsRepository.getUserCart(userId);
+    if (!cart) {
+      cart = await this._cartsRepository.createCart(userId);
+    }
     const product = await this._productsService.getProduct(
       productToCartDto.productId,
     );
@@ -53,25 +61,27 @@ export class CartsService {
       (productsAlreadyInCart - (isProductAlreadyInUserCart?.quantity || 0));
 
     if (isProductAlreadyInUserCart) {
+      //In case if quantity is not present, we just increase by 1
+      const requestedQuantityAdd = productToCartDto.quantity || 1;
       const newQuantity =
-        productToCartDto.quantity + isProductAlreadyInUserCart.quantity >
+        requestedQuantityAdd + isProductAlreadyInUserCart.quantity >
         availableQuantityToAdd
           ? availableQuantityToAdd
-          : productToCartDto.quantity + isProductAlreadyInUserCart.quantity;
+          : requestedQuantityAdd + isProductAlreadyInUserCart.quantity;
 
       Logger.debug(
         `Product id: ${product.id} is already in cart of user: ${userId}. Updating with new quantity: ${newQuantity}`,
       );
 
       return await this._cartsRepository.updateProductInCart(
-        userId,
+        cart.id,
         productToCartDto.productId,
         newQuantity,
       );
     }
 
     return await this._cartsRepository.addToCart(
-      userId,
+      cart.id,
       productToCartDto.productId,
       productToCartDto.quantity > availableQuantityToAdd
         ? availableQuantityToAdd
@@ -85,21 +95,17 @@ export class CartsService {
     hashKey: HashKey.CART,
   })
   public async getUserCart(userId: number): Promise<ICart> {
-    const productsInCart = await this._cartsRepository.getProductsInCart(
-      userId,
-    );
-    const total = productsInCart
-      .reduce((accumulator: Decimal, product: IProductCart) => {
-        return accumulator.plus(new Decimal(product.subtotal));
-      }, new Decimal(0))
-      .toNumber();
+    const cart = await this._cartsRepository.getUserCart(userId);
+    if (!cart) {
+      throw new NotFoundException('Cart not found');
+    }
 
-    return { products: productsInCart, total };
+    return cart;
   }
 
   @CacheClear({
     hashKey: HashKey.CART,
-    cacheKey: (args: any[]) => `user_${args[0]}`,
+    cacheKey: (args: any[]) => `user_${args[1]}`,
   })
   public async deleteProductFromCard(
     productToCartDto: ProductToCartDto,
@@ -113,8 +119,10 @@ export class CartsService {
       throw new NotFoundException('Product not found');
     }
 
-    const newQuantity = productInCart.quantity - productToCartDto.quantity;
-    if (newQuantity < 1) {
+    const newQuantity =
+      productInCart.quantity - (productToCartDto.quantity || 0);
+
+    if (newQuantity < 1 || !productToCartDto.quantity) {
       Logger.debug(
         `Removing Product id: ${productInCart.productId} from user: ${userId} such as quantity is negative`,
       );
@@ -132,5 +140,26 @@ export class CartsService {
         newQuantity,
       );
     }
+  }
+
+  @CacheClear({
+    hashKey: HashKey.CART,
+    cacheKey: (args: any[]) => `user_${args[1]}`,
+  })
+  public async applyDiscountToCart(
+    applyDiscountDto: ApplyDiscountDto,
+    userId: number,
+  ): Promise<IDiscount> {
+    const [cart, discount] = await Promise.all([
+      this.getUserCart(userId),
+      this._discountsService.getDiscount(applyDiscountDto.code),
+    ]);
+    if (cart.id !== applyDiscountDto.cartId) {
+      throw new ForbiddenException(`Cart is not accessible for this user`);
+    }
+
+    await this._cartsRepository.applyDiscountToCart(cart.id, discount.id);
+
+    return discount;
   }
 }

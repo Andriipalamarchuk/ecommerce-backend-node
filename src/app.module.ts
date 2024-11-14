@@ -8,6 +8,7 @@ import { CartsModule } from './modules/carts/carts.module';
 import { ProductsModule } from './modules/products/products.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { HashKey } from './enums/hash-key.enum';
+import { DiscountsModule } from './modules/discounts/discounts.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { HashKey } from './enums/hash-key.enum';
     AuthModule,
     CartsModule,
     ProductsModule,
+    DiscountsModule,
   ],
 })
 export class AppModule {}

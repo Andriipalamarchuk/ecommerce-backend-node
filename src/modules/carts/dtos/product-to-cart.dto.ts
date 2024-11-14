@@ -1,9 +1,10 @@
-import { IsNumber } from 'class-validator';
+import { IsNumber, IsOptional } from 'class-validator';
 
 export class ProductToCartDto {
   @IsNumber()
   productId: number;
 
   @IsNumber()
-  quantity: number;
+  @IsOptional()
+  quantity?: number;
 }

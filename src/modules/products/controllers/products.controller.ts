@@ -22,7 +22,7 @@ export class ProductsController {
     @Query('page') page = 0,
     @Query('pageSize') pageSize = 20,
   ): Promise<IProduct[]> {
-    if (!!page || !!pageSize) {
+    if (page === undefined || pageSize === undefined) {
       throw new BadRequestException('Page and Page size should be provided');
     }
 
