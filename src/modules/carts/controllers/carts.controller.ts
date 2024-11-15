@@ -15,6 +15,7 @@ import { ICart } from '../interfaces/cart.interface';
 import { ProductToCartDto } from '../dtos/product-to-cart.dto';
 import { IProductCart } from '../../products/interfaces/product.interface';
 import { ApplyDiscountDto } from '../dtos/apply-discount.dto';
+import { IDiscount } from '../../discounts/interfaces/discount.interface';
 
 @UseGuards(JwtAuthGuard)
 @Controller('cart')
@@ -39,7 +40,7 @@ export class CartsController {
     @Param('cartId') cartId: number,
     @Body() applyDiscountDto: ApplyDiscountDto,
     @UserId() userId: number,
-  ) {
+  ): Promise<IDiscount> {
     if (cartId !== applyDiscountDto.cartId) {
       throw new BadRequestException('Invalid cart');
     }
