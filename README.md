@@ -1,73 +1,87 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo_text.svg" width="320" alt="Nest Logo" /></a>
-</p>
+# E-commerce Backend Node.js
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+This repository contains the backend code for an e-commerce platform built with Node.js. The application is designed to handle a variety of e-commerce functionalities, such as user management, product catalog using a scalable architecture.
+In the project there are still some TODOs for implementation of Order process and payment management
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Technologies Used
 
-## Description
+- **Node.js**: Server-side JavaScript runtime.
+- **NestJS**: A progressive Node.js framework for building efficient, reliable and scalable server-side applications.
+- **PostgreSQL**: Relational database for storing application data.
+- **Redis**: Caching layer to improve performance.
+- **AWS (ECR, ECS, RDS, S3, and others)**: For cloud infrastructure and deployment.
+- **Docker**: Containerization for deployment.
+- **Jest**: For unit and integration testing.
+- **AWS CDK**: Infrastructure as Code for provisioning AWS resources.
+- **GitHub Actions**: Continuous integration and deployment (CI/CD).
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Features
 
-## Installation
+- **User Authentication**: Secure login and registration system.
+- **Product Management**: Create, update, and delete product listings.
+- **Order Processing**: **TODO**.
+- **Payment Integration**: **TODO**.
+- **Search and Filtering**: **TODO**.
+- **Admin Dashboard**: **TODO**.
+- **Scalable Architecture**: Utilizes AWS for auto-scaling, load balancing, and disaster recovery.
+
+## Setup Instructions
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) (v22.11.0 or later)
+- [Docker](https://www.docker.com/products/docker-desktop) (for containerization)
+- [AWS CLI](https://aws.amazon.com/cli/) (for AWS interaction)
+- [AWS Account](https://aws.amazon.com/)
+
+### Install Dependencies
+
+1. Clone the repository:
+
+    ```bash
+    git clone https://github.com/Andriipalamarchuk/ecommerce-backend-node.git
+    cd ecommerce-backend-node
+    ```
+
+2. Install the dependencies:
+
+    ```bash
+    npm install
+    ```
+   
+As alternative you can use docker without installing Node.js
+1. Clone the repository:
+
+    ```bash
+    git clone https://github.com/Andriipalamarchuk/ecommerce-backend-node.git
+    cd ecommerce-backend-node
+    ```
+
+2. Start application with Docker:
+
+    ```bash
+    docker compose up -d
+    ```
+
+### Environment Variables
+
+Create a `.env` file in the root of the project and populate it with the following environment variables:
 
 ```bash
-$ npm install
-```
+# General Configuration
+NODE_ENV=development
+PORT=3000
 
-## Running the app
+# Database Configuration (PostgreSQL)
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=ecommerce
+DB_USER=your_db_user
+DB_PASSWORD=your_db_password
 
-```bash
-# development
-$ npm run start
+# Redis Configuration (for caching)
+REDIS_HOST=localhost
+REDIS_PORT=6379
 
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
-```
-
-## Test
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
+# JWT Secret (for authentication)
+JWT_SECRET=your_jwt_secret
