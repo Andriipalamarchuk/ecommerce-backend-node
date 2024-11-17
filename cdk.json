@@ -1,0 +1,3 @@
+{
+  "app": "npx ts-node --project tsconfig.json iac/bin/app.ts"
+}
