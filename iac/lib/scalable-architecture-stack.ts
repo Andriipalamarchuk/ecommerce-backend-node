@@ -11,7 +11,6 @@ export class ScalableArchitectureStack extends cdk.Stack {
   constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    // Create the VPC
     const vpc = createVpc(this, 'AppVpc');
 
     createEcsService(this, 'AppEcsService', vpc);

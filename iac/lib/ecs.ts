@@ -1,45 +1,46 @@
 import { Construct } from 'constructs';
 import * as ecs from 'aws-cdk-lib/aws-ecs';
-import { Vpc } from 'aws-cdk-lib/aws-ec2';
-import {
-  ContainerImage,
-  FargateTaskDefinition,
-  FargateService,
-  LogDrivers,
-} from 'aws-cdk-lib/aws-ecs';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as ecr from 'aws-cdk-lib/aws-ecr';
+import { LogDrivers } from 'aws-cdk-lib/aws-ecs';
 import { ApplicationLoadBalancer } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+import { Duration } from 'aws-cdk-lib';
 
 export function createEcsService(
   scope: Construct,
   id: string,
-  vpc: Vpc,
+  vpc: ec2.Vpc,
 ): ecs.FargateService {
   const cluster = new ecs.Cluster(scope, `${id}Cluster`, {
     vpc,
   });
 
-  const taskDef = new FargateTaskDefinition(scope, `${id}TaskDef`, {
-    memoryLimitMiB: 512,
-    cpu: 256,
+  const repository = ecr.Repository.fromRepositoryName(
+    scope,
+    `${id}EcrRepository`,
+    'images-repo',
+  );
+
+  const taskDef = new ecs.FargateTaskDefinition(scope, `${id}TaskDef`, {
+    memoryLimitMiB: 1024,
+    cpu: 512,
   });
 
   const container = taskDef.addContainer(`${id}Container`, {
-    image: ContainerImage.fromRegistry('node:14'), // Replace with your Docker image if needed
+    image: ecs.ContainerImage.fromEcrRepository(repository, 'latest'),
     logging: LogDrivers.awsLogs({ streamPrefix: 'app' }),
   });
 
-  // Add port mapping to the container
   container.addPortMappings({
-    containerPort: 3000, // The port the app inside the container will listen on
+    containerPort: 3000,
   });
 
-  const service = new FargateService(scope, `${id}Service`, {
+  const service = new ecs.FargateService(scope, `${id}Service`, {
     cluster,
     taskDefinition: taskDef,
-    desiredCount: 2, // Number of instances of the task to run
+    desiredCount: 2,
   });
 
-  // Load balancer setup (optional)
   const lb = new ApplicationLoadBalancer(scope, `${id}LoadBalancer`, {
     vpc,
     internetFacing: true,
@@ -47,11 +48,16 @@ export function createEcsService(
 
   const listener = lb.addListener('PublicListener', {
     port: 80,
+    open: true,
   });
 
   listener.addTargets(`${id}Targets`, {
     port: 80,
     targets: [service],
+    healthCheck: {
+      path: '/',
+      interval: Duration.seconds(30),
+    },
   });
 
   return service;
